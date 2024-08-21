@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+{% block title %}Listing Page{% endblock title %}
+{% block body %}
+<div class="container">
+    <div class="main-title d-flex justify-content-around align-items-center">
+        <h1 class="text-uppercase">Book</h1>
+        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            Add Book
+        </button>
+        {% if messages %}
+        {% for message in messages %}
+        <div class="text-center text-danger pt-3"></button>
+            <strong>{{message}}</strong>
+        </div>
+        {% endfor %}
+        {%endif%}
+        <!-- Add Book Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="bookForm" method="POST" action="{% url 'book_add' %}">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="fortitle">Title</label>
+                                <input type="text" class="form-control" name="title" id="fortitle"
+                                    placeholder="Enter title">
+                                <small id="titleError" class="form-text text-danger"
+                                    style="color: red; display: none;">Title is required.</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                <input type="text" class="form-control" name="description" id="description"
+                                    placeholder="Description">
+                                <small id="descriptionError" class="form-text text-danger"
+                                    style="color: red; display: none;">Description is required.</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="price">Price</label>
+                                <input type="number" class="form-control" name="price" id="price" placeholder="Price">
+                                <small id="priceError" class="form-text text-danger"
+                                    style="color: red; display: none;">Price is required.</small>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Title</th>
+                <th scope="col">Description</th>
+                <th scope="col">Price</th>
+                <th scope="col">Edit</th>
+                <th scope="col">Delete</th>
+            </tr>
+        <tbody>
+            {% for b in book %}
+            <tr>
+                <th scope="row">{{ b.id }}</th>
+                <td>{{ b.title }}</td>
+                <td>{{ b.description }}</td>
+                <td>{{ b.price }}</td>
+                <td>
+                    <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+                        data-bs-target="#exampleModaledit{{ b.id }}">
+                        Edit Book
+                    </button>
+                    <!-- Edit Book Modal -->
+                    <div class="modal fade" id="exampleModaledit{{ b.id }}" tabindex="-1"
+                        aria-labelledby="exampleModaleditLabel{{ b.id }}" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModaleditLabel{{ b.id }}">Edit Book - {{
+                                        b.title}}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="bookForm{{ b.id }}" method="POST" action="{%url 'book_edit' b.id %}">
+                                        {% csrf_token %}
+                                        <div class="form-group">
+                                            <label for="fortitle{{ b.id }}">Title</label>
+                                            <input type="text" class="form-control" name="title" id="fortitle{{ b.id }}"
+                                                value="{{ b.title }}" placeholder="Enter title">
+                                            <small id="titleError{{ b.id }}" class="form-text text-danger"
+                                                style="display: none;">Title is required.</small>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="description{{ b.id }}">Description</label>
+                                            <input type="text" class="form-control" name="description"
+                                                id="description{{ b.id }}" value="{{ b.description }}"
+                                                placeholder="Description">
+                                            <small id="descriptionError{{ b.id }}" class="form-text text-danger"
+                                                style="display: none;">Description is required.</small>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="price{{ b.id }}">Price</label>
+                                            <input type="number" class="form-control" name="price" id="price{{ b.id }}"
+                                                value="{{ b.price }}" placeholder="Price">
+                                            <small id="priceError{{ b.id }}" class="form-text text-danger"
+                                                style="display: none;">Price is required.</small>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Update</button>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <a href="{%url 'book_delete' b.id%}" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    document.getElementById('bookForm').addEventListener('submit', function (event) {
+        let isValid = true;
+
+        const title = document.getElementById('fortitle').value.trim();
+        const description = document.getElementById('description').value.trim();
+        const price = document.getElementById('price').value.trim();
+
+        if (title === '') {
+            isValid = false;
+            document.getElementById('titleError').style.display = 'block';
+        } else {
+            document.getElementById('titleError').style.display = 'none';
+        }
+
+        if (description === '') {
+            isValid = false;
+            document.getElementById('descriptionError').style.display = 'block';
+        } else {
+            document.getElementById('descriptionError').style.display = 'none';
+        }
+
+        if (price === '') {
+            isValid = false;
+            document.getElementById('priceError').style.display = 'block';
+        } else {
+            document.getElementById('priceError').style.display = 'none';
+        }
+
+        if (!isValid) {
+            event.preventDefault();
+        }
+    });
+
+    document.querySelectorAll('form[id^="bookForm"]').forEach(form => {
+        form.addEventListener('submit', function (event) {
+            let isValid = true;
+            const idSuffix = form.id.replace('bookForm', '');
+
+            const title = document.getElementById('fortitle' + idSuffix).value.trim();
+            const description = document.getElementById('description' + idSuffix).value.trim();
+            const price = document.getElementById('price' + idSuffix).value.trim();
+
+            if (title === '') {
+                isValid = false;
+                document.getElementById('titleError' + idSuffix).style.display = 'block';
+            } else {
+                document.getElementById('titleError' + idSuffix).style.display = 'none';
+            }
+
+            if (description === '') {
+                isValid = false;
+                document.getElementById('descriptionError' + idSuffix).style.display = 'block';
+            } else {
+                document.getElementById('descriptionError' + idSuffix).style.display = 'none';
+            }
+
+            if (price === '') {
+                isValid = false;
+                document.getElementById('priceError' + idSuffix).style.display = 'block';
+            } else {
+                document.getElementById('priceError' + idSuffix).style.display = 'none';
+            }
+
+            if (!isValid) {
+                event.preventDefault();
+            }
+        });
+    });
+</script>
+
+{% endblock body %}
